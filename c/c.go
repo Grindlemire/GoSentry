@@ -15,6 +15,7 @@ type Conf struct {
 	Files     []string `yaml:"filesToWatch"`
 	ScanEvery string   `yaml:"scanEvery"`
 	OutputDir string   `yaml:"outputDir"`
+	Regexs    []string `yaml:"timeRegexPatterns"`
 }
 
 // GetConf gets configuration from the yaml file

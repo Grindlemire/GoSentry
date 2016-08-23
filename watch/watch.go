@@ -5,26 +5,14 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
 	log "github.com/cihub/seelog"
+	CONF "github.com/grindlemire/GoSentry/c"
 	L "github.com/vrecan/life"
 )
-
-var badLines []string
-
-func init() {
-	badLines = []string{
-		"session opened for user root",
-		"Invalid user",
-		"POSSIBLE BREAK-IN ATTEMPT!",
-		"Failed password for root",
-		"Successful su for root",
-		"useradd",
-		"gpasswd",
-	}
-}
 
 // Watch watches audit files and alerts if there are errors
 type Watch struct {
@@ -35,18 +23,36 @@ type Watch struct {
 	Year      int
 	Month     int
 	Day       int
+	Regexs    []*regexp.Regexp
+	BadLines  []string
 }
 
 // NewWatch creates a new watch object
-func NewWatch(auditFiles []string, tickerDuration time.Duration, outputDir string, year, month, day int) (newWatch *Watch, err error) {
+func NewWatch(c CONF.Conf) (newWatch *Watch, err error) {
+	regexs := []*regexp.Regexp{}
+	for _, rS := range c.Regexs {
+		r, err := regexp.Compile(rS)
+		if err != nil {
+			return nil, log.Error("Regex Does not compile: ", err)
+		}
+		regexs = append(regexs, r)
+	}
+
+	duration, err := parseDuration(c.ScanEvery)
+	if err != nil {
+		return nil, log.Error("Error parsing scanEvery duration: ", err)
+	}
+
 	newWatch = &Watch{
 		Life:      L.NewLife(),
-		Files:     auditFiles,
-		Ticker:    time.NewTicker(tickerDuration),
-		Year:      year,
-		Month:     month,
-		Day:       day,
-		OutputDir: outputDir,
+		Files:     c.Files,
+		Ticker:    time.NewTicker(duration),
+		Year:      c.Year,
+		Month:     c.Month,
+		Day:       c.Day,
+		OutputDir: c.OutputDir,
+		Regexs:    regexs,
+		BadLines:  c.Flagged,
 	}
 
 	newWatch.SetRun(newWatch.run)
@@ -68,6 +74,7 @@ func (w Watch) run() {
 	}
 }
 
+// ReadFiles reads all the specified files and parses them
 func (w Watch) ReadFiles() {
 	for _, fileStr := range w.Files {
 		file, err := os.Open(fileStr)
@@ -90,7 +97,7 @@ func (w Watch) ReadFiles() {
 
 			inRange := w.isLineInRange(line)
 			if inRange {
-				if testLine(line) {
+				if w.testLine(line) {
 					flagFound++
 					flaggedLines = append(flaggedLines, line)
 				}
@@ -111,6 +118,7 @@ func (w Watch) ReadFiles() {
 	}
 }
 
+// writeFile writes flagged events to an output file
 func writeFile(lines []string, outputDir, filePath string) (totalName string, err error) {
 	if len(lines) == 0 {
 		return
@@ -140,8 +148,8 @@ func writeFile(lines []string, outputDir, filePath string) (totalName string, er
 }
 
 // testLine tests if any flagged strings are in the line
-func testLine(line string) bool {
-	for _, badLine := range badLines {
+func (w Watch) testLine(line string) bool {
+	for _, badLine := range w.BadLines {
 		if strings.Contains(line, badLine) {
 			return true
 		}
@@ -152,35 +160,73 @@ func testLine(line string) bool {
 
 // isLineInRange parses the date on the string and checks if it is in the range to check
 func (w Watch) isLineInRange(line string) (inRange bool) {
-	r, err := regexp.Compile("(^Jan|^Feb|^Mar|^May|^Jun|^Jul|^Aug|^Sep|^Oct|^Nov|^Dec)\\s+[0-9]{1,2}\\s+[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}")
+	found := false
+	for _, r := range w.Regexs {
+
+		dateStrSlice := r.FindAllString(line, -1)
+		if len(dateStrSlice) == 0 {
+			continue
+		}
+		found = true
+
+		date, err := time.Parse("Jan 2 15:04:05", dateStrSlice[0])
+		date = date.AddDate(time.Now().Year(), 0, 0) //Note this will break on new years every year
+		if err != nil {
+			log.Error("Error Parsing string to time in file: ", dateStrSlice[0])
+		}
+
+		end := time.Now()
+		start := time.Now().AddDate(-w.Year, -w.Month, -w.Day)
+
+		if inTimeRange(start, end, date) {
+			return true
+		}
+	}
+	if !found {
+		log.Error("Unable to parse line to any regular expression")
+	}
+	return false
+}
+
+// inTimeRange tests whether the parsed time is within the range specified
+func inTimeRange(start, end, check time.Time) bool {
+	return check.After(start) && check.Before(end)
+}
+
+// parseDuration parses the scanEvery option into a time
+func parseDuration(scanStr string) (duration time.Duration, err error) {
+	r, err := regexp.Compile("(?P<number>[0-9])+\\s*(?P<unit>[s|m|d|M])")
 	if err != nil {
 		log.Error("Regex Does not compile: ", err)
 		return
 	}
 
-	dateStrSlice := r.FindAllString(line, -1)
-	if len(dateStrSlice) == 0 {
-		log.Error("Date Failed to parse in regular expression: ", line)
-		return
+	matches := r.FindStringSubmatch(scanStr)
+	if len(matches) != 3 {
+		return 0, log.Error("Incorrect parsing of duration string ", scanStr)
 	}
 
-	date, err := time.Parse("Jan 2 15:04:05", dateStrSlice[0])
-	date = date.AddDate(time.Now().Year(), 0, 0) //Note this will break on new years every year
+	durationNum, err := strconv.Atoi(matches[1])
 	if err != nil {
-		log.Error("Error Parsing string to time in file: ", dateStrSlice[0])
+		return 0, log.Error("Number not in duration: ", matches[1])
+	}
+	durationUnit := matches[2]
+
+	switch durationUnit {
+	case "s":
+		return time.Duration(durationNum) * time.Second, nil
+	case "m":
+		return time.Duration(durationNum) * time.Minute, nil
+	case "h":
+		return time.Duration(durationNum) * time.Hour, nil
+	case "d":
+		return time.Duration(durationNum) * 24 * time.Hour, nil
+	case "M":
+		return time.Duration(durationNum) * 24 * 30 * time.Hour, nil
+	default:
+		return 0, log.Error("Error Parsing Time unit for time: ", scanStr)
 	}
 
-	end := time.Now()
-	start := time.Now().AddDate(-w.Year, -w.Month, -w.Day)
-
-	if inTimeRange(start, end, date) {
-		return true
-	}
-	return false
-}
-
-func inTimeRange(start, end, check time.Time) bool {
-	return check.After(start) && check.Before(end)
 }
 
 // Close satisfies the io.Closer interface for Life and Death

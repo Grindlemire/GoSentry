@@ -3,7 +3,12 @@
 filesToWatch:
   - "/tmp/test"
 
-# Phrases that will be flagged in the files
+# Regular expressions to parse files with for time. Uses format found at https://golang.org/pkg/regexp/syntax/
+timeRegexPatterns:
+  - "(^Jan|^Feb|^Mar|^May|^Jun|^Jul|^Aug|^Sep|^Oct|^Nov|^Dec)\\s+[0-9]{1,2}\\s+[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}" #parses /var/log/auth.log in Ubuntu
+
+# Phrases that will be flagged in the files. 
+# Here are a couple defaults from Ubuntu's auth.log
 flaggedPhrases:
   - "session opened for user root"
   - "Invalid user"
@@ -14,7 +19,8 @@ flaggedPhrases:
   - "gpasswd"
 
 
-# How often to scan the files in s|m|h|d|M
+# How often to scan the files. Specify a number and a letter signifying the unit
+# Parses with the regular epxression [0-9]+[s|m|h|d|M]
 scanEvery: "5s"
 
 # How far back to parse in the logs
