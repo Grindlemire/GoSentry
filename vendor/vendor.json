@@ -1,0 +1,25 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "GvGyaM5QbKiTgFHaFU91/xjD3X4=",
+			"path": "github.com/cihub/seelog",
+			"revision": "62b842b5264a13a6d5ea6ac4b4c00c75f984dd4c",
+			"revisionTime": "2016-05-24T19:38:31Z"
+		},
+		{
+			"checksumSHA1": "dKogCJ9FoqapRl4ePSxgmdc1vHs=",
+			"path": "github.com/vrecan/death",
+			"revision": "f65d20c72cb04f987dcc757dae8b62c5cbda5886",
+			"revisionTime": "2016-06-09T16:57:02Z"
+		},
+		{
+			"checksumSHA1": "EIGUe9rpia/Ybh6j9K/wK78YfKk=",
+			"path": "github.com/vrecan/life",
+			"revision": "87d40329f1aa43b16a15a73835f32e34fd0ce542",
+			"revisionTime": "2016-03-14T23:28:10Z"
+		}
+	],
+	"rootPath": "github.com/grindlemire/GoSentry"
+}
