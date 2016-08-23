@@ -1,0 +1,28 @@
+
+# Files that will be monitored by this service
+filesToWatch:
+  - "/tmp/test"
+
+# Phrases that will be flagged in the files
+flaggedPhrases:
+  - "session opened for user root"
+  - "Invalid user"
+  - "POSSIBLE BREAK-IN ATTEMPT!"
+  - "Failed password for root"
+  - "Successful su for root"
+  - "useradd"
+  - "gpasswd"
+
+
+# How often to scan the files in s|m|h|d|M
+scanEvery: "5s"
+
+# How far back to parse in the logs
+yearsBack: 1
+monthsBack: 0
+daysBack: 0
+
+
+# Where to write the flagged phrases to
+outputDir: "/tmp/gosentry"
+
