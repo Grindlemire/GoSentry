@@ -7,6 +7,8 @@ Go service that monitors security logs for anomalies and sends notifications
 
 # Configuration
 
+Configurations are found in the c.yml file.
+
 Option            | Explanation                                        | type 
 ----------------- | -------------------------------------------------- | ---------
 flaggedPhrases    | List of phrases to look for in the audit files.    | []string
