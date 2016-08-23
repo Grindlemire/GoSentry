@@ -17,7 +17,16 @@ func Run() {
 	var goRoutines []io.Closer
 	death := death.NewDeath(SYS.SIGINT, SYS.SIGTERM) //pass the signals you want to end your application
 
-	watch := watch.NewWatch()
+	files := []string{
+		"/tmp/test1",
+		"/tmp/test2",
+	}
+
+	watch, err := watch.NewWatch(files)
+	if err != nil {
+		log.Error("Unable to create Watcher: ", err)
+		return
+	}
 	watch.Start()
 	goRoutines = append(goRoutines, watch) // this will work as long as the type implements a Close method
 

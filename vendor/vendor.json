@@ -9,6 +9,12 @@
 			"revisionTime": "2016-05-24T19:38:31Z"
 		},
 		{
+			"checksumSHA1": "xgjI2W3RGiQwNlxsOW2V9fJ9kaM=",
+			"path": "github.com/fsnotify/fsnotify",
+			"revision": "f12c6236fe7b5cf6bcf30e5935d08cb079d78334",
+			"revisionTime": "2016-08-16T05:15:41Z"
+		},
+		{
 			"checksumSHA1": "dKogCJ9FoqapRl4ePSxgmdc1vHs=",
 			"path": "github.com/vrecan/death",
 			"revision": "f65d20c72cb04f987dcc757dae8b62c5cbda5886",
@@ -19,6 +25,12 @@
 			"path": "github.com/vrecan/life",
 			"revision": "87d40329f1aa43b16a15a73835f32e34fd0ce542",
 			"revisionTime": "2016-03-14T23:28:10Z"
+		},
+		{
+			"checksumSHA1": "8fD/im5Kwvy3JgmxulDTambmE8w=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "a646d33e2ee3172a661fc09bca23bb4889a41bc8",
+			"revisionTime": "2016-07-15T05:43:45Z"
 		}
 	],
 	"rootPath": "github.com/grindlemire/GoSentry"
