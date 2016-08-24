@@ -22,7 +22,8 @@ fpm -f -s dir -t rpm -n gosentry -v 0.0.1 \
       usr/local/gosentry/GoSentry \
       usr/local/gosentry/c.yml \
       usr/local/gosentry/seelog.xml \
-      usr/lib/systemd/system/gosentry.service
+      usr/lib/systemd/system/gosentry.service \
+      var/log/gosentry/gosentry.log
 
 
 
@@ -36,4 +37,5 @@ fpm -f -s dir -t deb -n gosentry -v 0.0.1 \
       usr/local/gosentry/GoSentry \
       usr/local/gosentry/c.yml \
       usr/local/gosentry/seelog.xml \
-      usr/lib/systemd/system/gosentry.service
+      usr/lib/systemd/system/gosentry.service \
+      var/log/gosentry/gosentry.log
