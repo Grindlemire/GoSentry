@@ -11,12 +11,19 @@ touch packaging/target/var/log/gosentry/gosentry.log
 cd packaging
 
 
+mkdir scripts
+echo 'useradd -M -r gosentry' > scripts/beforeInstall.sh
+echo 'userdel gosentry' > scripts/afterRemove.sh
+
+
 
 fpm -f -s dir -t rpm -n gosentry -v 0.0.1 \
       --config-files usr/local/gosentry/c.yml \
       --config-files usr/local/gosentry/seelog.xml \
       --rpm-os linux \
       --rpm-user gosentry \
+      --before-install scripts/beforeInstall.sh \
+      --after-remove scripts/afterRemove.sh \
       -C target \
       -m grindlemire@github.com \
       usr/local/gosentry/GoSentry \
@@ -32,6 +39,8 @@ fpm -f -s dir -t deb -n gosentry -v 0.0.1 \
       --config-files usr/local/gosentry/seelog.xml \
       --rpm-os linux \
       --rpm-user gosentry \
+      --before-install scripts/beforeInstall.sh \
+      --after-remove scripts/afterRemove.sh \
       -C target \
       -m grindlemire@github.com \
       usr/local/gosentry/GoSentry \
