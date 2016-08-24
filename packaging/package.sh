@@ -3,9 +3,11 @@ set -x
 
 mkdir -p target/usr/local/gosentry
 mkdir -p target/usr/lib/systemd/system
+mkdir -p target/var/log/gosentry
 cd ..
 cp GoSentry c.yml seelog.xml packaging/target/usr/local/gosentry/
 cp gosentry.service packaging/target/usr/lib/systemd/system/
+touch packaging/target/var/log/gosentry/gosentry.log
 cd packaging
 
 

@@ -2,20 +2,19 @@
    <outputs formatid="all">
            <filter levels="info" formatid="fmtinfo" >
               <console/>
-              <rollingfile type="size" filename="/tmp/gosentry.log" maxsize="20000000" maxrolls="5" />
+              <rollingfile type="size" filename="/var/log/gosentry/gosentry.log" maxsize="20000000" maxrolls="5" />
            </filter>
              <filter levels="warn" formatid="fmtwarn">
               <console/>
-              <rollingfile type="size" filename="/tmp/gosentry.log" maxsize="20000000" maxrolls="5" />
+              <rollingfile type="size" filename="/var/log/gosentry/gosentry.log" maxsize="20000000" maxrolls="5" />
             </filter>
             <filter levels="error,critical" formatid="fmterror">
               <console/>
-              <rollingfile type="size" filename="/tmp/gosentry.log" maxsize="20000000" maxrolls="5" />
+              <rollingfile type="size" filename="/var/log/gosentry/gosentry.log" maxsize="20000000" maxrolls="5" />
             </filter>
-            <filter levels="debug">
-            <!--	<console/> -->
-              <rollingfile type="size" filename="/tmp/gosentry.log" maxsize="20000000" maxrolls="5" />
-            </filter>
+            <!-- <filter levels="debug">
+              <rollingfile type="size" filename="/var/log/gosentry/gosentry.log" maxsize="20000000" maxrolls="5" />
+            </filter> -->
     </outputs>
     <formats>
         <format id="fmtinfo" format="%EscM(32)[%Level]%EscM(0) [%Date %Time] [%File] %Msg%n"/>
