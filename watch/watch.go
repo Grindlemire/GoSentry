@@ -18,13 +18,14 @@ import (
 type Watch struct {
 	*L.Life
 	Files     []string
-	Ticker    *time.Ticker
+	Timer     *time.Timer
 	OutputDir string
 	Year      int
 	Month     int
 	Day       int
 	Regexs    []*regexp.Regexp
 	BadLines  []string
+	Duration  time.Duration
 }
 
 // NewWatch creates a new watch object
@@ -46,13 +47,14 @@ func NewWatch(c CONF.Conf) (newWatch *Watch, err error) {
 	newWatch = &Watch{
 		Life:      L.NewLife(),
 		Files:     c.Files,
-		Ticker:    time.NewTicker(duration),
+		Timer:     time.NewTimer(0 * time.Second),
 		Year:      c.Year,
 		Month:     c.Month,
 		Day:       c.Day,
 		OutputDir: c.OutputDir,
 		Regexs:    regexs,
 		BadLines:  c.Flagged,
+		Duration:  duration,
 	}
 
 	newWatch.SetRun(newWatch.run)
@@ -66,8 +68,9 @@ func (w Watch) run() {
 
 	for {
 		select {
-		case <-w.Ticker.C:
+		case <-w.Timer.C:
 			w.ReadFiles()
+			w.Timer.Reset(w.Duration)
 		case <-w.Life.Done:
 			return
 		}
