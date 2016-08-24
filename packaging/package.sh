@@ -1,6 +1,12 @@
 set -x
 
 
+if ! [ -e "$1" ]; then
+  echo "Version not found" >&2
+  exit 1
+fi
+
+
 mkdir -p target/usr/local/gosentry
 mkdir -p target/usr/lib/systemd/system
 mkdir -p target/var/log/gosentry
@@ -17,7 +23,7 @@ echo 'userdel gosentry' > scripts/afterRemove.sh
 
 
 
-fpm -f -s dir -t rpm -n gosentry -v 0.0.1 \
+fpm -f -s dir -t rpm -n gosentry -v $1 \
       --config-files usr/local/gosentry/c.yml \
       --config-files usr/local/gosentry/seelog.xml \
       --rpm-os linux \
@@ -34,7 +40,7 @@ fpm -f -s dir -t rpm -n gosentry -v 0.0.1 \
 
 
 
-fpm -f -s dir -t deb -n gosentry -v 0.0.1 \
+fpm -f -s dir -t deb -n gosentry -v $1 \
       --config-files usr/local/gosentry/c.yml \
       --config-files usr/local/gosentry/seelog.xml \
       --rpm-os linux \
