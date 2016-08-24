@@ -19,3 +19,5 @@ filesToWatch      | List of files to watch. (Full Paths).              | []strin
 scanEvery         | How long between scans (Example 5h or 10d or 11M). | string   
 outputDir         | What directory to output the flagged lines.        | string   
 timeRegexPatterns | Regular Expressions used to parse the audit files. | []string 
+
+

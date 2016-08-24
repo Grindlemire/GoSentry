@@ -1,0 +1,14 @@
+[Unit]
+Description=Gosentry watches critical files for configured phrases
+
+[Service]
+Type=simple
+User=gosentry
+TimeoutSec=30s
+RestartSec=1
+Restart=always
+WorkingDirectory=/usr/local/gosentry
+ExecStart=/usr/local/gosentry/GoSentry
+
+[Install]
+WantedBy=multi-user.target
